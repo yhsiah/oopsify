@@ -1,6 +1,7 @@
 {
-  "name": "oopsifier",
+  "name": "oopsify",
   "version": "0.1.0",
+  "license": "MIT",
   "description": "Transform clean fake data into realistic human-entered data",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
