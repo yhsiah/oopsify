@@ -1,6 +1,6 @@
 # oopsify
 
-Transform clean fake data into realistic human-entered data.
+Transform clean fake data into realistic human-entered data
 
 ## Overview
 
@@ -21,6 +21,7 @@ import {
   lowercaseEntireText,
   uppercaseEntireText,
   applyWithProbability,
+  swapAddressLines,
 } from "oopsify";
 
 // Direct transformation
@@ -31,6 +32,16 @@ const result = lowercaseEntireText("Hello World");
 const maybeUppercase = applyWithProbability(uppercaseEntireText, 0.3);
 const result = maybeUppercase("hello world");
 // Returns: "HELLO WORLD" with 30% chance, "hello world" with 70% chance
+
+// Address transformation
+const swappedAddress = swapAddressLines({
+  address: "123 Main Street",
+  address2: "Suite 200",
+});
+// Returns: { address: "Suite 200", address2: "123 Main Street" }
+
+// Address with probability
+const maybeSwap = applyWithProbability(swapAddressLines, 0.3);
 ```
 
 ## API Reference
@@ -53,6 +64,29 @@ uppercaseEntireText("hello world"); // "HELLO WORLD"
 
 ```typescript
 lowercaseExceptFirstLetter("HELLO WORLD"); // "Hello world"
+```
+
+### Address Functions
+
+#### `swapAddressLines(input: AddressInput): AddressInput`
+
+Swaps address line 1 and address line 2 when both contain content.
+
+```typescript
+swapAddressLines({
+  address: "123 Main Street",
+  address2: "Apt 5",
+});
+// Returns: { address: "Apt 5", address2: "123 Main Street" }
+```
+
+#### `AddressInput` Interface
+
+```typescript
+interface AddressInput {
+  address: string;
+  address2?: string;
+}
 ```
 
 ### Utility Functions
