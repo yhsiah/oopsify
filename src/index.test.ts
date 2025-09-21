@@ -1,4 +1,4 @@
-import { lowercaseEntireText, lowercaseExceptFirstLetter, uppercaseEntireText, applyWithProbability } from './index';
+import { lowercaseEntireText, lowercaseExceptFirstLetter, uppercaseEntireText, swapAddressLines, applyWithProbability } from './index';
 
 describe('lowercaseEntireText', () => {
   test('converts text to lowercase', () => {
@@ -93,6 +93,66 @@ describe('lowercaseExceptFirstLetter', () => {
 
   test('handles special characters', () => {
     expect(lowercaseExceptFirstLetter('CAFÉ-RESTAURANT')).toBe('Café-restaurant');
+  });
+});
+
+describe('swapAddressLines', () => {
+  test('swaps address lines when both are present', () => {
+    const input = {
+      address: "123 Main Street",
+      address2: "Apt 5"
+    };
+    const result = swapAddressLines(input);
+    expect(result).toEqual({
+      address: "Apt 5",
+      address2: "123 Main Street"
+    });
+  });
+
+  test('returns unchanged when address2 is undefined', () => {
+    const input = {
+      address: "123 Main Street"
+    };
+    const result = swapAddressLines(input);
+    expect(result).toEqual({
+      address: "123 Main Street"
+    });
+  });
+
+  test('returns unchanged when address2 is empty string', () => {
+    const input = {
+      address: "123 Main Street",
+      address2: ""
+    };
+    const result = swapAddressLines(input);
+    expect(result).toEqual({
+      address: "123 Main Street",
+      address2: ""
+    });
+  });
+
+  test('returns unchanged when address2 is only whitespace', () => {
+    const input = {
+      address: "123 Main Street",
+      address2: "   "
+    };
+    const result = swapAddressLines(input);
+    expect(result).toEqual({
+      address: "123 Main Street",
+      address2: "   "
+    });
+  });
+
+  test('handles tab and newline whitespace', () => {
+    const input = {
+      address: "123 Main Street",
+      address2: "\t\n"
+    };
+    const result = swapAddressLines(input);
+    expect(result).toEqual({
+      address: "123 Main Street",
+      address2: "\t\n"
+    });
   });
 });
 
