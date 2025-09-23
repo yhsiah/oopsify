@@ -1,4 +1,4 @@
-import { lowercaseEntireText, lowercaseExceptFirstLetter, uppercaseEntireText, swapAddressLines, applyWithProbability } from './index';
+import { lowercaseEntireText, lowercaseExceptFirstLetter, uppercaseEntireText, swapAddressLines, combineAddressLines, applyWithProbability } from './index';
 
 describe('lowercaseEntireText', () => {
   test('converts text to lowercase', () => {
@@ -153,6 +153,104 @@ describe('swapAddressLines', () => {
       address: "123 Main Street",
       address2: "\t\n"
     });
+  });
+});
+
+describe('combineAddressLines', () => {
+  test('combines address lines with default settings', () => {
+    const input = {
+      address: "123 Main Street",
+      address2: "Apt 5"
+    };
+    const result = combineAddressLines(input);
+    
+    // Should combine the lines and clear address2
+    expect(result.address2).toBe("");
+    expect(result.address).toContain("123 Main Street");
+    expect(result.address).toContain("Apt 5");
+  });
+
+  test('returns unchanged when address2 is undefined', () => {
+    const input = {
+      address: "123 Main Street"
+    };
+    const result = combineAddressLines(input);
+    expect(result).toEqual({
+      address: "123 Main Street"
+    });
+  });
+
+  test('returns unchanged when address2 is empty string', () => {
+    const input = {
+      address: "123 Main Street",
+      address2: ""
+    };
+    const result = combineAddressLines(input);
+    expect(result).toEqual({
+      address: "123 Main Street",
+      address2: ""
+    });
+  });
+
+  test('returns unchanged when address2 is only whitespace', () => {
+    const input = {
+      address: "123 Main Street",
+      address2: "   "
+    };
+    const result = combineAddressLines(input);
+    expect(result).toEqual({
+      address: "123 Main Street",
+      address2: "   "
+    });
+  });
+
+  test('uses custom separator when provided', () => {
+    const input = {
+      address: "123 Main Street",
+      address2: "Apt 5"
+    };
+    const result = combineAddressLines(input, { separator: " | " });
+    
+    expect(result.address).toContain(" | ");
+    expect(result.address2).toBe("");
+  });
+
+  test('puts second line first when specified', () => {
+    const input = {
+      address: "123 Main Street",
+      address2: "Apt 5"
+    };
+    const result = combineAddressLines(input, { secondLineFirst: true });
+    
+    expect(result.address).toMatch(/^Apt 5/);
+    expect(result.address).toContain("123 Main Street");
+    expect(result.address2).toBe("");
+  });
+
+  test('puts first line first when specified', () => {
+    const input = {
+      address: "123 Main Street",
+      address2: "Apt 5"
+    };
+    const result = combineAddressLines(input, { secondLineFirst: false });
+    
+    expect(result.address).toMatch(/^123 Main Street/);
+    expect(result.address).toContain("Apt 5");
+    expect(result.address2).toBe("");
+  });
+
+  test('uses both custom separator and order', () => {
+    const input = {
+      address: "123 Main Street",
+      address2: "Suite 200"
+    };
+    const result = combineAddressLines(input, { 
+      separator: " - ", 
+      secondLineFirst: true 
+    });
+    
+    expect(result.address).toBe("Suite 200 - 123 Main Street");
+    expect(result.address2).toBe("");
   });
 });
 

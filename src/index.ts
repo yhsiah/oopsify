@@ -1,9 +1,3 @@
-// Interfaces
-interface AddressInput {
-  address: string;
-  address2?: string;
-}
-
 // Transformation functions
 function lowercaseEntireText(text: string): string {
   return text.toLowerCase();
@@ -18,6 +12,11 @@ function lowercaseExceptFirstLetter(text: string): string {
 }
 
 // Address-specific functions
+interface AddressInput {
+  address: string;
+  address2?: string;
+}
+
 function swapAddressLines(input: AddressInput): AddressInput {
   // Only swap if both address lines have content
   if (!input.address2?.trim()) {
@@ -27,6 +26,39 @@ function swapAddressLines(input: AddressInput): AddressInput {
   return {
     address: input.address2,
     address2: input.address
+  };
+}
+
+interface CombineAddressOptions {
+  secondLineFirst?: boolean;
+  separator?: string;
+}
+
+function combineAddressLines(
+  input: AddressInput,
+  options: CombineAddressOptions = {}
+): AddressInput {
+  if (!input.address2?.trim()) {
+    return { ...input };
+  }
+  
+  const secondLineFirst = options.secondLineFirst ?? (Math.random() < 0.5);
+  
+  let separator: string;
+  if (options.separator) {
+    separator = options.separator;
+  } else {
+    const separators = [", ", ", ", ", ", " ", ",", " - ", ". "];
+    separator = separators[Math.floor(Math.random() * separators.length)];
+  }
+  
+  const combinedAddress = secondLineFirst 
+    ? `${input.address2}${separator}${input.address}`
+    : `${input.address}${separator}${input.address2}`;
+  
+  return {
+    address: combinedAddress,
+    address2: ""
   };
 }
 
@@ -46,10 +78,12 @@ function applyWithProbability<T>(
 
 // Export everything
 export { 
-  AddressInput,
   lowercaseEntireText, 
   lowercaseExceptFirstLetter, 
   uppercaseEntireText,
   applyWithProbability,
-  swapAddressLines
+  AddressInput,
+  swapAddressLines,
+  CombineAddressOptions,
+  combineAddressLines
 };

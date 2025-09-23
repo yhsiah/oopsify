@@ -22,26 +22,30 @@ import {
   uppercaseEntireText,
   applyWithProbability,
   swapAddressLines,
+  combineAddressLines,
 } from "oopsify";
 
 // Direct transformation
 const result = lowercaseEntireText("Hello World");
 // Returns: "hello world"
 
-// Probabilistic transformation
-const maybeUppercase = applyWithProbability(uppercaseEntireText, 0.3);
-const result = maybeUppercase("hello world");
-// Returns: "HELLO WORLD" with 30% chance, "hello world" with 70% chance
-
-// Address transformation
+// Address transformations
 const swappedAddress = swapAddressLines({
   address: "123 Main Street",
   address2: "Suite 200",
 });
 // Returns: { address: "Suite 200", address2: "123 Main Street" }
 
-// Address with probability
-const maybeSwap = applyWithProbability(swapAddressLines, 0.3);
+const combinedAddress = combineAddressLines({
+  address: "123 Main Street",
+  address2: "Apt 5",
+});
+// Returns: { address: "Apt 5, 123 Main Street", address2: "" }
+
+// Probabilistic transformation
+const maybeUppercase = applyWithProbability(uppercaseEntireText, 0.3);
+const result = maybeUppercase("hello world");
+// Returns: "HELLO WORLD" with 30% chance, "hello world" with 70% chance
 ```
 
 ## API Reference
@@ -80,12 +84,36 @@ swapAddressLines({
 // Returns: { address: "Apt 5", address2: "123 Main Street" }
 ```
 
+#### `combineAddressLines(input: AddressInput, options?: CombineAddressOptions): AddressInput`
+
+Combines address line 2 into address line 1 and clears address line 2.
+
+```typescript
+combineAddressLines({
+  address: "123 Main Street",
+  address2: "Apt 5",
+});
+// Returns: { address: "Apt 5, 123 Main Street", address2: "" }
+
+// With options
+combineAddressLines(input, { secondLineFirst: false, separator: " - " });
+```
+
 #### `AddressInput` Interface
 
 ```typescript
 interface AddressInput {
   address: string;
   address2?: string;
+}
+```
+
+#### `CombineAddressOptions` Interface
+
+```typescript
+interface CombineAddressOptions {
+  secondLineFirst?: boolean;
+  separator?: string;
 }
 ```
 
