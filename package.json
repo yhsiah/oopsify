@@ -3,6 +3,7 @@
   "version": "0.3.0",
   "license": "MIT",
   "description": "Transform clean fake data into realistic human-entered data",
+  "repository": "github:yhsiah/oopsify",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
