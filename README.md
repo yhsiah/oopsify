@@ -8,6 +8,8 @@ Most test data generators produce perfect, clean data that doesn't reflect how r
 
 Written in TypeScript, tested with Jest.
 
+**Note:** oopsify transforms existing data - it doesn't generate it. Use with faker, chance, or any data generator.
+
 ## Installation
 
 ```bash
@@ -18,72 +20,79 @@ npm install oopsify
 
 ```typescript
 import {
+  pipe,
+  removeSpacing,
   lowercaseEntireText,
-  uppercaseEntireText,
   applyWithProbability,
-  swapAddressLines,
-  combineAddressLines,
-  replaceApartmentTerms,
 } from "oopsify";
 
-// Direct transformation
-const lowerCased = lowercaseEntireText("Hello World");
-// Returns: "hello world"
+// Simple transformation
+const clean = removeSpacing("DF3 3OF"); // "DF33OF"
 
-// Address transformations
-const swappedAddress = swapAddressLines({
-  address: "123 Main Street",
-  address2: "Suite 200",
-});
-// Returns: { address: "Suite 200", address2: "123 Main Street" }
+// Compose transformations
+const oopsified = pipe(
+  removeSpacing,
+  applyWithProbability(lowercaseEntireText, 0.2)
+);
 
-const combinedAddress = combineAddressLines({
-  address: "123 Main Street",
-  address2: "Apt 5",
-});
-// Returns: { address: "Apt 5, 123 Main Street", address2: "" }
-
-// Apartment term variation
-const variedAddress = replaceApartmentTerms({
-  address: "123 Main Street",
-  address2: "Apt. 825",
-});
-// Returns: { address: "123 Main Street", address2: "Suite 825" }
-// (or Apartment, Flat, Unit, etc.)
-
-// Probabilistic transformation
-const maybeUppercase = applyWithProbability(uppercaseEntireText, 0.3);
-const result = maybeUppercase("hello world");
-// Returns: "HELLO WORLD" with 30% chance, "hello world" with 70% chance
+oopsified("DF3 3OF"); // "DF33OF" or "df33of"
 ```
 
 ## Common Patterns
 
-### Transform faker output
+### Transform a single value
+
+```typescript
+import { removeSpacing } from "oopsify";
+
+const postcode = removeSpacing("DF3 3OF"); // "DF33OF"
+```
+
+### Compose transformations with pipe
+
+```typescript
+import {
+  pipe,
+  removeSpacing,
+  lowercaseEntireText,
+  applyWithProbability,
+} from "oopsify";
+
+const oopsifiedPostcode = pipe(
+  removeSpacing,
+  applyWithProbability(lowercaseEntireText, 0.2)
+);
+
+oopsifiedPostcode("DF3 3OF");
+// Returns: "DF33OF" (80% of the time) or "df33of" (20% of the time)
+```
+
+### Transform faker data
 
 ```typescript
 import { faker } from "@faker-js/faker";
 import {
+  pipe,
   replaceApartmentTerms,
-  applyWithProbability,
   combineAddressLines,
+  applyWithProbability,
 } from "oopsify";
 
-// Generate clean faker data
+// Generate clean address data
 const cleanAddress = {
   address: faker.location.streetAddress(), // "782 Derrick Springs"
   address2: faker.location.secondaryAddress(), // "Apt. 350"
 };
 
-// Replace apartment term with a variation
-const withVariedTerms = replaceApartmentTerms(cleanAddress);
-// Result: { address: "782 Derrick Springs", address2: "Flat 350" }
+// Create reusable transformation pipeline
+const oopsifiedAddress = pipe(
+  replaceApartmentTerms,
+  applyWithProbability(combineAddressLines, 0.3)
+);
 
-// Sometimes combine address lines
-const maybeCombined = applyWithProbability(combineAddressLines, 0.3);
-const oopsifiedAddress = maybeCombined(withVariedTerms);
-// Result (30% chance): { address: "Flat 350, 782 Derrick Springs", address2: "" }
-// Result (70% chance): { address: "782 Derrick Springs", address2: "Flat 350" }
+const result = oopsifiedAddress(cleanAddress);
+// 30% chance: { address: "Flat 350, 782 Derrick Springs", address2: "" }
+// 70% chance: { address: "782 Derrick Springs", address2: "Suite 350" }
 ```
 
 ### Process multiple addresses
@@ -95,13 +104,14 @@ const addresses = Array.from({ length: 100 }, () => ({
   address2: faker.location.secondaryAddress(),
 }));
 
-// Apply realistic variations to each
-const oopsifiedAddresses = addresses.map((addr) => {
-  // Always: vary the apartment term
-  const varied = replaceApartmentTerms(addr);
-  // Sometimes (30%): combine into single line
-  return applyWithProbability(combineAddressLines, 0.3)(varied);
-});
+// Create transformation pipeline
+const oopsifiedAddress = pipe(
+  replaceApartmentTerms,
+  applyWithProbability(combineAddressLines, 0.3)
+);
+
+// Apply to all addresses
+const results = addresses.map(oopsifiedAddress);
 
 // Result: 100 addresses with varied apartment terms
 //         ~30 will have combined address lines
@@ -256,6 +266,31 @@ Wraps any transformation function to apply it probabilistically.
 ```typescript
 // Create a function that uppercases text 25% of the time
 const sometimesUppercase = applyWithProbability(uppercaseEntireText, 0.25);
+```
+
+### Composition Functions
+
+#### `pipe<T>(...fns: Array<(arg: T) => T>): (value: T) => T`
+
+Composes functions left-to-right, passing the output of each function as input to the next.
+
+```typescript
+// Create a transformation pipeline
+const oopsifiedPostcode = pipe(
+  removeSpacing,
+  applyWithProbability(lowercaseEntireText, 0.2)
+);
+
+oopsifiedPostcode("DF3 3OF");
+// Returns: "DF33OF" (80% of the time) or "df33of" (20% of the time)
+
+// Combine multiple transformations
+const oopsifiedAddress = pipe(
+  replaceApartmentTerms,
+  applyWithProbability(combineAddressLines, 0.3)
+);
+
+oopsifiedAddress({ address: "123 Main St", address2: "Apt 5" });
 ```
 
 ## Development
