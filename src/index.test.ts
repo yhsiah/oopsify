@@ -255,7 +255,7 @@ describe('combineAddressLines', () => {
 });
 
 describe('replaceApartmentTerms', () => {
-  // Basic functionality - happy path
+  // === Basic functionality ===
   test('replaces apartment term while maintaining structure', () => {
     const input = {
       address: "Apt 5, 123 Main Street",
@@ -288,7 +288,7 @@ describe('replaceApartmentTerms', () => {
     expect(result.address2).toContain("200");
   });
 
-  // Negative cases - what should NOT match
+  // === Negative cases ===
   test('returns unchanged when no apartment term found', () => {
     const input = {
       address: "123 Main Street",
@@ -349,7 +349,9 @@ describe('replaceApartmentTerms', () => {
     expect(result).toEqual(input);
   });
 
-  // Formatting preservation
+  // === Formatting preservation ===
+  // Verifies structure regardless of which term is randomly selected.
+  // Regex includes all default terms, needs to be updated if these change.
   test('preserves no spacing', () => {
     const input = {
       address: "Apt5",
@@ -391,7 +393,10 @@ describe('replaceApartmentTerms', () => {
     expect(result.address).toContain("5A");
   });
 
-  // Multiple matches behavior
+  // === Multiple matches behavior ===
+  // Verifies only first occurrence is replaced. Note: If random selection 
+  // happens to pick the same term already present, this test still passes
+  // (which is acceptable given other tests verify replacement works).
   test('only replaces first apartment term when multiple exist', () => {
     const input = {
       address: "Apt 5, Suite 200, 123 Main Street",
@@ -402,7 +407,7 @@ describe('replaceApartmentTerms', () => {
     expect(result.address).toContain(" 5, Suite 200, 123 Main Street");
   });
 
-  // Options API - replaceTerms
+  // === Options API ===
   test('uses replaceTerms to override defaults', () => {
     const input = {
       address: "Apt 5",
@@ -415,7 +420,6 @@ describe('replaceApartmentTerms', () => {
     expect(result.address).toBe("Custom 5");
   });
 
-  // Options API - additionalTerms
   test('additionalTerms work without errors', () => {
     const input = {
       address: "Apt 5",
@@ -442,7 +446,6 @@ describe('replaceApartmentTerms', () => {
     expect(result.address).toBe("NewTerm 5");
   });
 
-  // Options API - excludeTerms
   test('excludes specific terms from selection', () => {
     const input = {
       address: "Apt 5",
@@ -454,7 +457,7 @@ describe('replaceApartmentTerms', () => {
     });
     
     const usedTerm = result.address.split(" ")[0];
-    expect(["Apt", "Apt.", "Apartment", "Suite", "Unit"]).toContain(usedTerm);
+    expect(["Apt", "Apt.", "Apartment", "Suite", "Ste", "Unit", "No"]).toContain(usedTerm);
   });
 
   test('combines excludeTerms and additionalTerms', () => {
@@ -468,10 +471,10 @@ describe('replaceApartmentTerms', () => {
     });
     
     const usedTerm = result.address.split(" ")[0];
-    expect(["Apt", "Apt.", "Apartment", "Unit", "Custom"]).toContain(usedTerm);
+    expect(["Apt", "Apt.", "Apartment", "Ste", "Unit", "No", "Custom"]).toContain(usedTerm);
   });
 
-  // Error handling
+  // === Error handling ===
   test('throws error when replaceTerms combined with additionalTerms', () => {
     const input = {
       address: "Apt 5",
