@@ -210,6 +210,29 @@ function applyWithProbability<T>(
   };
 }
 
+// Composition functions
+/**
+ * Composes functions left-to-right, passing the output of each function
+ * as input to the next.
+ * 
+ * @param fns - Functions to compose
+ * @returns A new function that applies all transformations in sequence
+ * 
+ * @example
+ * const messyPostcode = pipe(
+ *   removeSpacing,
+ *   applyWithProbability(lowercaseEntireText, 0.2)
+ * );
+ * messyPostcode("DF3 3OF"); 
+ * // Returns: "DF33OF" (80% of the time) or "df33of" (20% of the time)
+ */
+export function pipe<T>(...fns: Array<(arg: T) => T>): (value: T) => T {
+  if (fns.length === 0) {
+    return (value: T) => value;
+  }
+  return (value: T): T => fns.reduce((acc, fn) => fn(acc), value);
+}
+
 // Export everything
 export { 
   lowercaseEntireText, 

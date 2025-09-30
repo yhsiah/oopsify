@@ -1,4 +1,4 @@
-import { lowercaseEntireText, lowercaseExceptFirstLetter, uppercaseEntireText, removeSpacing, swapAddressLines, combineAddressLines, replaceApartmentTerms, applyWithProbability } from './index';
+import { lowercaseEntireText, lowercaseExceptFirstLetter, uppercaseEntireText, removeSpacing, swapAddressLines, combineAddressLines, replaceApartmentTerms, applyWithProbability, pipe } from './index';
 
 describe('lowercaseEntireText', () => {
   test('converts text to lowercase', () => {
@@ -570,5 +570,49 @@ describe('applyWithProbability', () => {
     const alwaysHigh = () => 0.9;
     const maybeUppercase = applyWithProbability(uppercaseEntireText, 0.5, alwaysHigh);
     expect(maybeUppercase('hello')).toBe('hello');
+  });
+});
+
+describe('pipe', () => {
+  test('applies functions left-to-right', () => {
+    const transform = pipe(
+      removeSpacing,
+      lowercaseEntireText
+    );
+    expect(transform('DF3 3OF')).toBe('df33of');
+  });
+
+  test('works with single function', () => {
+    const transform = pipe(removeSpacing);
+    expect(transform('DF3 3OF')).toBe('DF33OF');
+  });
+
+  test('returns identity function when called with no functions', () => {
+    const transform = pipe();
+    expect(transform('hello')).toBe('hello');
+    expect(transform('DF3 3OF')).toBe('DF3 3OF');
+  });
+
+  test('works with three or more functions', () => {
+    const transform = pipe(
+      removeSpacing,
+      lowercaseEntireText,
+      uppercaseEntireText
+    );
+    expect(transform('DF3 3OF')).toBe('DF33OF');
+  });
+
+  test('works with address objects', () => {
+    const transform = pipe(
+      replaceApartmentTerms,
+      swapAddressLines
+    );
+    const result = transform({
+      address: "123 Main St",
+      address2: "Apt 5"
+    });
+    
+    expect(result.address2).toBe("123 Main St");
+    expect(result.address).toContain("5");
   });
 });
