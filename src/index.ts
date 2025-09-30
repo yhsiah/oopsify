@@ -102,7 +102,7 @@ function replaceApartmentTerms(
     throw new Error("Cannot use replaceTerms with additionalTerms or excludeTerms");
   }
 
-  const defaultWords = ["Apt", "Apt.", "Apartment", "Flat", "Suite", "Unit"];
+  const defaultWords = ["Apt", "Apt.", "Apartment", "Flat", "Suite", "Ste", "Unit", "No"];
   
   // Use replaceTerms if provided, otherwise merge additionalTerms with defaults
   let wordsToUse = options.replaceTerms?.length 
@@ -130,7 +130,7 @@ function replaceApartmentTerms(
     // (\s*) - Captures optional whitespace (preserved in output)
     // (\d+[A-Za-z]?) - Captures number with optional letter (5A, 3b, etc.)
     // i flag - Case insensitive
-    const apartmentRegex = /(apt\.?|apartment|flat|suite|ste\.?|unit|no\.?)(\s*)(\d+[A-Za-z]?)/i;
+    const apartmentRegex = /\b(apt\.?|apartment|flat|suite|ste\.?|unit|no\.?)(\s*)(\d+[A-Za-z]?)\b/i;
     
     const match = text.match(apartmentRegex);
     if (!match) {
