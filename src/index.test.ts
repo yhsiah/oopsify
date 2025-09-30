@@ -1,4 +1,4 @@
-import { lowercaseEntireText, lowercaseExceptFirstLetter, uppercaseEntireText, swapAddressLines, combineAddressLines, replaceApartmentTerms, applyWithProbability } from './index';
+import { lowercaseEntireText, lowercaseExceptFirstLetter, uppercaseEntireText, removeSpacing, swapAddressLines, combineAddressLines, replaceApartmentTerms, applyWithProbability } from './index';
 
 describe('lowercaseEntireText', () => {
   test('converts text to lowercase', () => {
@@ -93,6 +93,33 @@ describe('lowercaseExceptFirstLetter', () => {
 
   test('handles special characters', () => {
     expect(lowercaseExceptFirstLetter('CAFÉ-RESTAURANT')).toBe('Café-restaurant');
+  });
+});
+
+describe('removeSpacing', () => {
+  test('removes all whitespace from text', () => {
+    expect(removeSpacing('Hello World')).toBe('HelloWorld');
+    expect(removeSpacing('DF3 3OF')).toBe('DF33OF');
+    expect(removeSpacing('0115 269 4127')).toBe('01152694127');
+  });
+
+  test('handles text with no spaces', () => {
+    expect(removeSpacing('HelloWorld')).toBe('HelloWorld');
+  });
+
+  test('handles empty string', () => {
+    expect(removeSpacing('')).toBe('');
+  });
+
+  test('removes tabs and newlines', () => {
+    expect(removeSpacing('Hello\tWorld')).toBe('HelloWorld');
+    expect(removeSpacing('Hello\nWorld')).toBe('HelloWorld');
+    expect(removeSpacing('Hello\r\nWorld')).toBe('HelloWorld');
+  });
+
+  test('handles text with only whitespace', () => {
+    expect(removeSpacing('   ')).toBe('');
+    expect(removeSpacing('\t\n')).toBe('');
   });
 });
 

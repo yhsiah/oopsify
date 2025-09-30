@@ -11,6 +11,10 @@ function lowercaseExceptFirstLetter(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 }
 
+function removeSpacing(text: string): string {
+  return text.replace(/\s/g, "");
+}
+
 // Address-specific functions
 interface AddressInput {
   address: string;
@@ -211,6 +215,7 @@ export {
   lowercaseEntireText, 
   lowercaseExceptFirstLetter, 
   uppercaseEntireText,
+  removeSpacing,
   applyWithProbability,
   AddressInput,
   swapAddressLines,

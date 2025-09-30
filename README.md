@@ -130,6 +130,15 @@ uppercaseEntireText("hello world"); // "HELLO WORLD"
 lowercaseExceptFirstLetter("HELLO WORLD"); // "Hello world"
 ```
 
+#### `removeSpacing(text: string): string`
+
+Removes all whitespace from text including spaces, tabs, and newlines.
+
+```typescript
+removeSpacing("DF3 3OF"); // "DF33OF"
+removeSpacing("0115 269 4127"); // "01152694127"
+```
+
 ### Address Functions
 
 #### `swapAddressLines(input: AddressInput): AddressInput`
