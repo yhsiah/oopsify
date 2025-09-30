@@ -1,6 +1,6 @@
 {
   "name": "oopsify",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "license": "MIT",
   "description": "Transform clean fake data into realistic human-entered data",
   "repository": "github:yhsiah/oopsify",
