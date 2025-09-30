@@ -34,6 +34,27 @@ interface CombineAddressOptions {
   separator?: string;
 }
 
+/**
+ * Combines address line 2 into address line 1 with optional formatting control.
+ * When no options provided, randomly selects separator and order.
+ * 
+ * @param input - Address object with address and optional address2
+ * @param options - Configuration for separator and line order
+ * @returns Address object with combined address line and cleared address2
+ * 
+ * @example
+ * // With explicit options
+ * combineAddressLines(
+ *   { address: "123 Main St", address2: "Apt 5" },
+ *   { separator: " - ", secondLineFirst: true }
+ * );
+ * // Returns: { address: "Apt 5 - 123 Main St", address2: "" }
+ * 
+ * @example
+ * // With random defaults
+ * combineAddressLines({ address: "123 Main St", address2: "Apt 5" });
+ * // Returns: Random separator and order
+ */
 function combineAddressLines(
   input: AddressInput,
   options: CombineAddressOptions = {}
@@ -88,6 +109,14 @@ interface ApartmentOptions {
  * @example
  * replaceApartmentTerms({ address: "Apt 5, 123 Main St" })
  * // Returns: { address: "Apartment 5, 123 Main St" } (or other random variation)
+ * 
+ * @example
+ * // With custom terms
+ * replaceApartmentTerms(
+ *   { address: "Apt 5, 123 Main St" },
+ *   { replaceTerms: ["Room"] }
+ * )
+ * // Returns: { address: "Room 5, 123 Main St" }
  */
 function replaceApartmentTerms(
   input: AddressInput,
@@ -151,10 +180,23 @@ function replaceApartmentTerms(
 }
 
 // Probability wrapper
+/**
+ * Wraps a transformation function to apply it probabilistically.
+ * Returns a new function that applies the transformation based on probability.
+ * 
+ * @param fn - The transformation function to wrap
+ * @param probability - Chance of applying transformation (0-1)
+ * @param rng - Random number generator (defaults to Math.random, injectable for testing)
+ * @returns A new function that applies the transformation probabilistically
+ * 
+ * @example
+ * const maybeUppercase = applyWithProbability(uppercaseEntireText, 0.3);
+ * maybeUppercase("hello"); // "HELLO" 30% of the time, "hello" 70% of the time
+ */
 function applyWithProbability<T>(
   fn: (input: T) => T, 
   probability: number, 
-  rng = Math.random // rng is injectible for testing
+  rng = Math.random
 ) {
   return (input: T): T => {
     if (rng() < probability) {
